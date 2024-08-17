@@ -1,0 +1,44 @@
+[
+  {
+    "ContainingType": "FondosApplication.Controllers.FondosController",
+    "Method": "Index",
+    "RelativePath": "api/Fondos",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "FondosApplication.Controllers.FondosController",
+    "Method": "Create",
+    "RelativePath": "api/Fondos",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "fondo",
+        "Type": "FondosApplication.Models.Fondo",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "FondosApplication.Controllers.FondosController",
+    "Method": "Update",
+    "RelativePath": "api/Fondos",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "fondo",
+        "Type": "FondosApplication.Models.Fondo",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  }
+]

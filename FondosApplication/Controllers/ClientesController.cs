@@ -11,54 +11,54 @@ namespace FondosApplication.Controllers
     [EnableCors("ReglasCors")]
     [Route("api/[controller]")]
     [ApiController]
-    public class FondosController : Controller
+    public class ClientesController : ControllerBase
     {
+        private readonly IMongoCollection<Cliente> _clientesCollection;
 
-        private readonly IMongoCollection<Fondo> _fondosCollection;
-
-        public FondosController(IMongoClient mongoClient)
+        public ClientesController(IMongoClient mongoClient)
         {
             var database = mongoClient.GetDatabase("banco");
-            _fondosCollection = database.GetCollection<Fondo>("Fondos"); 
+            _clientesCollection = database.GetCollection<Cliente>("Clientes");
         }
 
         [HttpGet]
-        [Route("getFondos")]
+        [Route("getCliente")]
         public async Task<IActionResult> Index()
         {
-            var fondos = await _fondosCollection.Find(_=>true).ToListAsync();
-            return StatusCode(StatusCodes.Status200OK, new { mensaje = "ok", response = fondos });
+            var cliente = await _clientesCollection.Find(_ => true).ToListAsync();
+            return StatusCode(StatusCodes.Status200OK, new { mensaje = "ok", response = cliente });
         }
 
         [HttpPost]
         [Route("Store")]
 
-        public async Task<IActionResult> Create(Fondo fondo)
+        public async Task<IActionResult> Create(Cliente cliente)
         {
-            fondo.Id = ObjectId.GenerateNewId().ToString();
-            fondo.Estado = "Aperturado";
-            try {
-                await _fondosCollection.InsertOneAsync(fondo);
-                return StatusCode(StatusCodes.Status200OK, new { mensaje = "fondo aperturado" });
+            cliente.Id = ObjectId.GenerateNewId().ToString();
+            cliente.saldo = 500000;
+            try
+            {
+                await _clientesCollection.InsertOneAsync(cliente);
+                return StatusCode(StatusCodes.Status200OK, new { mensaje = "cliente creado" });
             }
-            catch (System.Exception ex){
+            catch (System.Exception ex)
+            {
                 return StatusCode(StatusCodes.Status400BadRequest, new { mensaje = ex.Message });
             }
         }
 
         [HttpPut]
         [Route("Edit")]
-        public async Task<IActionResult> Update(Fondo fondo)
+        public async Task<IActionResult> Update(Cliente cliente)
         {
-            fondo.Estado = "Cancelado";
-            if(fondo.Id == null)
+            if (cliente.Id == null)
             {
                 return StatusCode(StatusCodes.Status400BadRequest);
             }
 
             if (ModelState.IsValid)
             {
-                await _fondosCollection.ReplaceOneAsync(p => p.Id == fondo.Id, fondo);
+                await _clientesCollection.ReplaceOneAsync(p => p.Id == cliente.Id, cliente);
                 return StatusCode(StatusCodes.Status200OK, new { mensaje = "fondo cancelado" });
             }
             else
@@ -66,9 +66,6 @@ namespace FondosApplication.Controllers
                 return StatusCode(StatusCodes.Status400BadRequest);
             }
 
-        
         }
-
-
-        }
+    }
 }

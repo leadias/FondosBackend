@@ -1,0 +1,74 @@
+Resources:
+  BackendApplication:
+    Type: AWS::ElasticBeanstalk::Application
+    Properties:
+      ApplicationName: backend-app
+      Description: Aplicación backend
+
+  BackendAppVersion:
+    Type: AWS::ElasticBeanstalk::ApplicationVersion
+    Properties:
+      ApplicationName: !Ref BackendApplication
+      SourceBundle:
+        S3Bucket: deploy-artifacts-miapp
+        S3Key: backend-api.zip
+
+  Ec2InstanceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "${AWS::StackName}-ec2-role"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AWSElasticBeanstalkWebTier
+        - arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy
+        - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
+
+  Ec2InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      InstanceProfileName: !Sub "${AWS::StackName}-ec2-instance-profile"
+      Roles:
+        - !Ref Ec2InstanceRole
+
+  BackendEnvironment:
+    Type: AWS::ElasticBeanstalk::Environment
+    Properties:
+      ApplicationName: !Ref BackendApplication
+      EnvironmentName: backend-env
+      PlatformArn: arn:aws:elasticbeanstalk:us-east-1::platform/IIS 10.0 running on 64bit Windows Server 2019/2.19.4
+      VersionLabel: !Ref BackendAppVersion
+      Tier:
+        Name: WebServer
+        Type: Standard
+      OptionSettings:
+        - Namespace: aws:autoscaling:launchconfiguration
+          OptionName: InstanceType
+          Value: t3.micro
+        - Namespace: aws:autoscaling:launchconfiguration
+          OptionName: IamInstanceProfile
+          Value: !Ref Ec2InstanceProfile
+        - Namespace: aws:elasticbeanstalk:application:environment
+          OptionName: ASPNETCORE_ENVIRONMENT
+          Value: Production
+        - Namespace: aws:elasticbeanstalk:environment
+          OptionName: EnvironmentType
+          Value: SingleInstance
+
+Outputs:
+  BackendURL:
+    Description: URL pública de la API (CNAME)
+    Value: !GetAtt BackendEnvironment.EndpointURL
+  InstanceProfileName:
+    Description: Nombre del InstanceProfile creado
+    Value: !Ref Ec2InstanceProfile
+  Ec2RoleName:
+    Description: Nombre del rol EC2 creado
+    Value: !Ref Ec2InstanceRole

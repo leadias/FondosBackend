@@ -58,6 +58,7 @@ namespace FondosApplication.Controllers
 
             if (ModelState.IsValid)
             {
+
                 await _clientesCollection.ReplaceOneAsync(p => p.Id == cliente.Id, cliente);
                 return StatusCode(StatusCodes.Status200OK, new { mensaje = "fondo cancelado" });
             }
